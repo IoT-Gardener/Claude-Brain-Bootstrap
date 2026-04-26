@@ -1,0 +1,18 @@
+# raw/ is excluded by default — it's your inbox and may contain:
+# - third-party copyrighted article content
+# - confidential work documents
+# - large binary attachments
+# Opt individual subfolders back in with e.g.:
+#   !raw/articles/summaries/
+raw/
+
+# OS
+.DS_Store
+Thumbs.db
+
+# Editor
+.obsidian/workspace.json
+.obsidian/workspace-mobile.json
+
+# Local integration state (auth tokens etc. should never be committed)
+.brain.local.toml
