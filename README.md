@@ -48,14 +48,15 @@ One command installs everything: Obsidian, Graphify, GitNexus, the brain scaffol
 **Prerequisites:** [Claude Code](https://claude.ai/code) installed and authenticated, [Homebrew](https://brew.sh).
 
 ```bash
+cd ~/Documents/Misc   # or wherever your projects live
 curl -fsSL https://raw.githubusercontent.com/IoT-Gardener/Claude-Brain-Bootstrap/main/install.sh \
-  | bash -s -- --enable graphify,gitnexus --seed ~/ --auto
+  | bash -s -- --enable graphify,gitnexus --auto
 ```
 
-This creates a `Brain/` folder in the current directory. To install elsewhere, pass the path as the first argument:
+This creates a `Brain/` folder in the current directory and seeds from it automatically. To install elsewhere or seed from a different path:
 
 ```bash
-... | bash -s -- ~/Brain --enable graphify,gitnexus --seed ~/ --auto
+... | bash -s -- ~/Brain --enable graphify,gitnexus --seed ~/Projects --auto
 ```
 
 Pass only the `--enable` flags for integrations you want — omit any you don't need.
@@ -83,7 +84,7 @@ This prints a file count and cost estimate before running, and asks for confirma
 | Flag | Description |
 |---|---|
 | `--enable graphify,gitnexus` | Enable integrations (comma-separated). Options: `graphify`, `gitnexus`, `web-clipper`, `notion`, `slack` |
-| `--seed <path>` | Walk a directory: git repos → Graphify queue; other files → `raw/` |
+| `--seed <path>` | Walk a directory: git repos → Graphify queue; other files → `raw/` (default: current directory) |
 | `--graphify-repos <path,...>` | Explicit repos to run Graphify on (merged with `--seed` results) |
 | `--auto` | Run headless first-run after install (Graphify + lint + librarian) |
 | `--ingest-seed` | With `--auto`: also bulk-ingest all seeded files (shows cost estimate first) |

@@ -6,7 +6,7 @@
 #
 # Options:
 #   --enable <integration,...>    Enable integrations: graphify, gitnexus, web-clipper, notion, slack
-#   --seed <path>                 Walk a directory: .git repos → Graphify queue; files → raw/
+#   --seed <path>                 Walk a directory: .git repos → Graphify queue; files → raw/ (default: cwd)
 #   --graphify-repos <path,...>   Explicit repos to run Graphify on (merged with --seed results)
 #   --gitnexus-repos <path,...>   Explicit repos to index with GitNexus (defaults to Graphify targets)
 #   --auto                        Run headless first-run after install (Graphify + lint + librarian)
@@ -14,12 +14,12 @@
 #   --yes                         Skip confirmation prompts (use with --ingest-seed)
 #
 # Examples:
-#   ./install.sh --enable graphify --seed ~/ --auto          (creates ./Brain)
-#   ./install.sh ~/Brain --enable graphify --seed ~/ --auto  (explicit path)
+#   ./install.sh --enable graphify --auto                            (seeds from cwd, creates ./Brain)
+#   ./install.sh ~/Brain --enable graphify --seed ~/Projects --auto  (explicit path and seed)
 #
-# Via curl (replace with your actual repo URL after pushing):
+# Via curl:
 #   curl -fsSL https://raw.githubusercontent.com/IoT-Gardener/Claude-Brain-Bootstrap/main/install.sh \
-#     | bash -s -- --enable graphify --seed ~/ --auto
+#     | bash -s -- --enable graphify --seed ~/Projects --auto
 #
 # Re-running is safe (idempotent) — existing content is never overwritten.
 
@@ -63,6 +63,9 @@ done
 
 # Default to ./Brain in the current directory if no path given
 [[ -z "$TARGET_PATH" ]] && TARGET_PATH="./Brain"
+
+# Default seed to cwd if not passed
+[[ -z "$SEED_PATH" ]] && SEED_PATH="$(pwd)"
 
 # Expand ~ and resolve to absolute path
 TARGET_PATH="${TARGET_PATH/#\~/$HOME}"
@@ -147,10 +150,20 @@ if [[ "$PLATFORM" == "macos" ]]; then
 
         # Graphify (always attempt — used by /brain-ingest-repo in deep mode)
         if command -v graphify &>/dev/null; then
-            warn "Graphify already installed ($(graphify --version 2>/dev/null || echo 'version unknown'))"
+            warn "Graphify already installed"
         else
             info "Installing Graphify..."
-            pip3 install graphify && ok "Graphify installed" || warn "Graphify install failed — run 'pip3 install graphify' manually"
+            # Ensure pipx is available
+            if ! command -v pipx &>/dev/null; then
+                brew install pipx --quiet 2>/dev/null && pipx ensurepath 2>/dev/null || true
+            fi
+            if command -v pipx &>/dev/null; then
+                pipx install graphifyy 2>/dev/null && graphify install \
+                    && ok "Graphify installed" \
+                    || warn "Graphify install failed — run 'pipx install graphifyy && graphify install' manually"
+            else
+                warn "Graphify install failed — install pipx first, then run 'pipx install graphifyy && graphify install'"
+            fi
         fi
 
         # GitNexus (only if enabled)
@@ -159,7 +172,15 @@ if [[ "$PLATFORM" == "macos" ]]; then
                 warn "GitNexus already installed ($(gitnexus --version 2>/dev/null || echo 'version unknown'))"
             else
                 info "Installing GitNexus..."
-                npm install -g gitnexus && ok "GitNexus installed" || warn "GitNexus install failed — run 'npm install -g gitnexus' manually"
+                # GitNexus requires Node 20.17+ or 22+; try nvm if available
+                if [[ -f "$HOME/.nvm/nvm.sh" ]]; then
+                    # shellcheck source=/dev/null
+                    . "$HOME/.nvm/nvm.sh"
+                    nvm use 22 2>/dev/null || nvm install 22 2>/dev/null || true
+                fi
+                npm install -g gitnexus \
+                    && ok "GitNexus installed" \
+                    || warn "GitNexus install failed — upgrade Node to v22+ and run 'npm install -g gitnexus' manually"
             fi
         fi
     fi
@@ -471,6 +492,16 @@ if [[ -n "$SEED_PATH" ]]; then
     SEED_PATH="${SEED_PATH/#\~/$HOME}"
     echo ""
     head "Walking seed path: $SEED_PATH ..."
+
+    # Warn if seeding from home root — this walks the entire computer
+    if [[ "$SEED_PATH" == "$HOME" || "$SEED_PATH" == "$HOME/" ]]; then
+        warn "Seed path is your home directory — this will walk your entire computer."
+        warn "Consider a more targeted path (e.g. ~/Projects, ~/Documents)."
+        if [[ "$YES" != "true" ]]; then
+            read -r -p "  Continue anyway? [y/N] " _cont
+            [[ "$_cont" =~ ^[Yy]$ ]] || { info "Skipping seed."; SEED_PATH=""; }
+        fi
+    fi
 
     if [[ ! -d "$SEED_PATH" ]]; then
         warn "Seed path does not exist: $SEED_PATH — skipping"

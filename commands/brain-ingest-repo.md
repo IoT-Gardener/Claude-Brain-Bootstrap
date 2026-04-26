@@ -19,7 +19,7 @@ Both modes write the same output format and frontmatter, so the page can be refr
 
 1. **Locate the brain.** Use `$BRAIN_ROOT` if set. Otherwise walk up from cwd looking for `wiki/index.md`. If not found, tell the user and stop.
 
-2. **Determine mode.** Read `$BRAIN_ROOT/.brain.toml`. If `graphify = true`, attempt deep mode: verify that `graphify` is on PATH (`graphify --version`). If Graphify is missing, warn and fall back to shallow. Otherwise use shallow mode.
+2. **Determine mode.** Read `$BRAIN_ROOT/.brain.toml`. If `graphify = true`, attempt deep mode: verify Graphify is available by running `graphify --version`. If missing, warn the user to run `pipx install graphifyy && graphify install`, then fall back to shallow. Otherwise use shallow mode.
 
 3. **Validate the repo path.** Confirm the path exists and contains a `.git` directory. If not, warn and stop.
 
@@ -29,7 +29,7 @@ Both modes write the same output format and frontmatter, so the page can be refr
    - If it does not exist: proceed.
 
 5. **Gather content.**
-   - **Deep mode**: run `graphify <path-to-repo>` and read its full output.
+   - **Deep mode**: run `graphify <path-to-repo>` via Bash. Graphify writes a markdown report (`report.md`) and an HTML graph to the current directory. Read `report.md` in full — this is the primary input for the wiki page.
    - **Shallow mode**: read in order, skipping anything that doesn't exist:
      - `README.md` / `README.rst`
      - `CLAUDE.md` / `AGENTS.md` / `.cursorrules`
