@@ -512,16 +512,18 @@ if [[ -n "$SEED_PATH" ]]; then
         info "Found ${#SEEDED_FILES[@]} file(s) → raw/"
 
         # Copy files into raw/
-        for f in "${SEEDED_FILES[@]}"; do
-            subdir="$(raw_subdir "$f")"
-            dst="$TARGET_PATH/raw/$subdir/$(basename "$f")"
-            if [[ -f "$dst" ]]; then
-                : # skip silently
-            else
-                cp "$f" "$dst"
-            fi
-        done
-        [[ ${#SEEDED_FILES[@]} -gt 0 ]] && ok "Copied ${#SEEDED_FILES[@]} files into raw/"
+        if [[ ${#SEEDED_FILES[@]} -gt 0 ]]; then
+            for f in "${SEEDED_FILES[@]}"; do
+                subdir="$(raw_subdir "$f")"
+                dst="$TARGET_PATH/raw/$subdir/$(basename "$f")"
+                if [[ -f "$dst" ]]; then
+                    : # skip silently
+                else
+                    cp "$f" "$dst"
+                fi
+            done
+            ok "Copied ${#SEEDED_FILES[@]} files into raw/"
+        fi
     fi
 fi
 
@@ -540,7 +542,8 @@ if [[ ${#GRAPHIFY_TARGETS[@]} -gt 0 ]]; then
 fi
 
 # GitNexus targets default to Graphify targets unless overridden
-GITNEXUS_TARGETS=("${GRAPHIFY_TARGETS[@]}")
+GITNEXUS_TARGETS=()
+[[ ${#GRAPHIFY_TARGETS[@]} -gt 0 ]] && GITNEXUS_TARGETS=("${GRAPHIFY_TARGETS[@]}")
 if [[ -n "$GITNEXUS_REPOS_EXTRA" ]]; then
     GITNEXUS_TARGETS=()
     IFS=',' read -ra EXTRAS <<< "$GITNEXUS_REPOS_EXTRA"
@@ -579,14 +582,16 @@ FIRST_RUN_TEMPLATE="$BOOTSTRAP_DIR/templates/first-run.md"
     echo ""
 
     # Graphify calls
-    for repo in "${GRAPHIFY_TARGETS[@]}"; do
-        if [[ -d "$repo/.git" ]]; then
-            echo "/brain-ingest-repo $repo"
-        fi
-    done
+    if [[ ${#GRAPHIFY_TARGETS[@]} -gt 0 ]]; then
+        for repo in "${GRAPHIFY_TARGETS[@]}"; do
+            if [[ -d "$repo/.git" ]]; then
+                echo "/brain-ingest-repo $repo"
+            fi
+        done
+    fi
 
     # Bulk ingest seeded files (only with --ingest-seed)
-    if [[ "$INGEST_SEED" == "true" ]]; then
+    if [[ "$INGEST_SEED" == "true" ]] && [[ ${#SEEDED_FILES[@]} -gt 0 ]]; then
         for f in "${SEEDED_FILES[@]}"; do
             subdir="$(raw_subdir "$f")"
             echo "/brain-ingest raw/$subdir/$(basename "$f")"
