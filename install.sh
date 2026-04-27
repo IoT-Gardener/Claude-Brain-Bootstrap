@@ -148,21 +148,23 @@ if [[ "$PLATFORM" == "macos" ]]; then
             brew install --cask obsidian && ok "Obsidian installed"
         fi
 
-        # Graphify (always attempt — used by /brain-ingest-repo in deep mode)
-        if command -v graphify &>/dev/null; then
-            warn "Graphify already installed"
-        else
-            info "Installing Graphify..."
-            # Ensure pipx is available
-            if ! command -v pipx &>/dev/null; then
-                brew install pipx --quiet 2>/dev/null && pipx ensurepath 2>/dev/null || true
-            fi
-            if command -v pipx &>/dev/null; then
-                pipx install graphifyy 2>/dev/null && graphify install \
-                    && ok "Graphify installed" \
-                    || warn "Graphify install failed — run 'pipx install graphifyy && graphify install' manually"
+        # Graphify (only if enabled)
+        if echo "$ENABLE_INTEGRATIONS" | grep -q "graphify"; then
+            if command -v graphify &>/dev/null; then
+                warn "Graphify already installed"
             else
-                warn "Graphify install failed — install pipx first, then run 'pipx install graphifyy && graphify install'"
+                info "Installing Graphify..."
+                # Ensure pipx is available
+                if ! command -v pipx &>/dev/null; then
+                    brew install pipx --quiet 2>/dev/null && pipx ensurepath 2>/dev/null || true
+                fi
+                if command -v pipx &>/dev/null; then
+                    pipx install graphifyy 2>/dev/null && graphify install \
+                        && ok "Graphify installed" \
+                        || warn "Graphify install failed — run 'pipx install graphifyy && graphify install' manually"
+                else
+                    warn "Graphify install failed — install pipx first, then run 'pipx install graphifyy && graphify install'"
+                fi
             fi
         fi
 
@@ -649,7 +651,7 @@ if [[ "$AUTO" == "true" ]]; then
         LIBRARIAN_CMD="$BOOTSTRAP_DIR/templates/agents/brain-librarian.md"
 
         # ── Graphify: one claude -p call per repo ─────────────────────────────
-        if [[ ${#GRAPHIFY_TARGETS[@]} -gt 0 ]]; then
+        if echo "$ENABLE_INTEGRATIONS" | grep -q "graphify" && [[ ${#GRAPHIFY_TARGETS[@]} -gt 0 ]]; then
             echo ""
             head "Running Graphify (${#GRAPHIFY_TARGETS[@]} repo(s))..."
 
