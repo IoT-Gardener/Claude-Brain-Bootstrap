@@ -565,8 +565,8 @@ if echo "$ENABLE_INTEGRATIONS" | grep -q "gitnexus" && command -v gitnexus &>/de
         for repo in "${GITNEXUS_TARGETS[@]}"; do
             if [[ -d "$repo/.git" ]]; then
                 info "Indexing $repo ..."
-                gitnexus index "$repo" && ok "Indexed: $(basename "$repo")" \
-                    || warn "GitNexus index failed for $repo — run manually: gitnexus index $repo"
+                gitnexus analyze "$repo" && ok "Indexed: $(basename "$repo")" \
+                    || warn "GitNexus index failed for $repo — run manually: gitnexus analyze $repo"
             else
                 warn "Skipping GitNexus index for $repo — not a git repo"
             fi
@@ -633,10 +633,10 @@ if [[ "$AUTO" == "true" ]]; then
     else
         TODAY="$(date +%Y-%m-%d)"
         ALLOWED_TOOLS="Read,Edit,Write,Bash,Glob,Grep,Task"
-        GRAPHIFY_CMD="$(cat "$BOOTSTRAP_DIR/commands/brain-ingest-repo.md")"
-        INGEST_CMD="$(cat "$BOOTSTRAP_DIR/commands/brain-ingest.md")"
-        LINT_CMD="$(cat "$BOOTSTRAP_DIR/commands/brain-lint.md")"
-        LIBRARIAN_CMD="$(cat "$BOOTSTRAP_DIR/templates/agents/brain-librarian.md")"
+        INGEST_REPO_CMD="$BOOTSTRAP_DIR/commands/brain-ingest-repo.md"
+        INGEST_CMD="$BOOTSTRAP_DIR/commands/brain-ingest.md"
+        LINT_CMD="$BOOTSTRAP_DIR/commands/brain-lint.md"
+        LIBRARIAN_CMD="$BOOTSTRAP_DIR/templates/agents/brain-librarian.md"
 
         # ── Graphify: one claude -p call per repo ─────────────────────────────
         if [[ ${#GRAPHIFY_TARGETS[@]} -gt 0 ]]; then
@@ -655,13 +655,12 @@ if [[ "$AUTO" == "true" ]]; then
                 fi
 
                 info "Graphify: $repo_name ..."
-                if claude -p \
-                    --allowedTools "$ALLOWED_TOOLS" \
-                    "BRAIN_ROOT=$TARGET_PATH
-
-$GRAPHIFY_CMD
-
-Execute for this repo: $repo"; then
+                # Pipe prompt via stdin to avoid bash expanding backticks in the command file
+                if {
+                    printf 'BRAIN_ROOT=%s\n\n' "$TARGET_PATH"
+                    cat "$INGEST_REPO_CMD"
+                    printf '\nExecute the above instructions for this repo: %s\n' "$repo"
+                } | claude -p --allowedTools "$ALLOWED_TOOLS"; then
                     ok "Graphify complete: $repo_name"
                 else
                     warn "Graphify failed for $repo_name — skipping, continuing with next repo"
@@ -698,13 +697,11 @@ Execute for this repo: $repo"; then
                         continue
                     fi
 
-                    if claude -p \
-                        --allowedTools "$ALLOWED_TOOLS" \
-                        "BRAIN_ROOT=$TARGET_PATH
-
-$INGEST_CMD
-
-Ingest this file: $raw_path" 2>/dev/null; then
+                    if {
+                        printf 'BRAIN_ROOT=%s\n\n' "$TARGET_PATH"
+                        cat "$INGEST_CMD"
+                        printf '\nIngest this file: %s\n' "$raw_path"
+                    } | claude -p --allowedTools "$ALLOWED_TOOLS" 2>/dev/null; then
                         (( _ingested++ )) || true
                     else
                         (( _failed++ )) || true
@@ -721,13 +718,11 @@ Ingest this file: $raw_path" 2>/dev/null; then
         # ── Lint ──────────────────────────────────────────────────────────────
         echo ""
         head "Running brain-lint..."
-        if claude -p \
-            --allowedTools "$ALLOWED_TOOLS" \
-            "BRAIN_ROOT=$TARGET_PATH
-
-$LINT_CMD
-
-Run a lint check on the wiki. Apply safe fixes automatically (--apply mode)."; then
+        if {
+            printf 'BRAIN_ROOT=%s\n\n' "$TARGET_PATH"
+            cat "$LINT_CMD"
+            printf '\nRun a lint check on the wiki. Apply safe fixes automatically (--apply mode).\n'
+        } | claude -p --allowedTools "$ALLOWED_TOOLS"; then
             ok "Lint complete"
         else
             warn "Lint failed — run /brain-lint manually"
@@ -736,13 +731,11 @@ Run a lint check on the wiki. Apply safe fixes automatically (--apply mode)."; t
         # ── Librarian ─────────────────────────────────────────────────────────
         echo ""
         head "Running brain-librarian..."
-        if claude -p \
-            --allowedTools "$ALLOWED_TOOLS" \
-            "BRAIN_ROOT=$TARGET_PATH
-
-You are the brain librarian. Follow these instructions exactly:
-
-$LIBRARIAN_CMD"; then
+        if {
+            printf 'BRAIN_ROOT=%s\n\n' "$TARGET_PATH"
+            printf 'You are the brain librarian. Follow these instructions exactly:\n\n'
+            cat "$LIBRARIAN_CMD"
+        } | claude -p --allowedTools "$ALLOWED_TOOLS"; then
             ok "Librarian complete"
         else
             warn "Librarian failed — run /brain-librarian manually"

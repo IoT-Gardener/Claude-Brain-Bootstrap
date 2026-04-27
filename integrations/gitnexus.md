@@ -28,12 +28,12 @@ Requires Node.js 18+.
 ## Index a repo
 
 ```bash
-gitnexus index /path/to/repo
+gitnexus analyze /path/to/repo
 ```
 
 GitNexus builds a local index of the repo's structure. Re-index after significant refactors:
 ```bash
-gitnexus index /path/to/repo --force
+gitnexus analyze /path/to/repo --force
 ```
 
 The index is stored at `~/.gitnexus/indexes/<repo-hash>/`. It does not contain source code — only structural metadata.
@@ -72,9 +72,9 @@ GitNexus does not answer semantic questions ("what does this do?") — use `/bra
 
 Index each repo you want available:
 ```bash
-gitnexus index ~/Work/my-api
-gitnexus index ~/Work/my-frontend
-gitnexus index ~/Work/my-services
+gitnexus analyze ~/Work/my-api
+gitnexus analyze ~/Work/my-frontend
+gitnexus analyze ~/Work/my-services
 ```
 
 All indexed repos are available to the single `gitnexus serve` MCP server instance.
@@ -83,6 +83,6 @@ All indexed repos are available to the single `gitnexus serve` MCP server instan
 
 **`gitnexus: command not found`** — npm global bin not on PATH. Add `$(npm root -g)/../bin` to your PATH, or use `npx gitnexus`.
 
-**Stale results** — re-run `gitnexus index <repo>` after large refactors. The index doesn't auto-update on file changes.
+**Stale results** — re-run `gitnexus analyze <repo>` after large refactors. The index doesn't auto-update on file changes.
 
 **MCP server not responding** — confirm `gitnexus` is in `~/.claude/settings.json` under `mcpServers` and that you've restarted Claude Code.
