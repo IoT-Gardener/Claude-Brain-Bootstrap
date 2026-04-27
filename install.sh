@@ -536,9 +536,13 @@ if [[ -n "$GRAPHIFY_REPOS_EXTRA" ]]; then
     done
 fi
 
-# Deduplicate
+# Deduplicate (bash 3.2 compatible — no mapfile)
 if [[ ${#GRAPHIFY_TARGETS[@]} -gt 0 ]]; then
-    mapfile -t GRAPHIFY_TARGETS < <(printf '%s\n' "${GRAPHIFY_TARGETS[@]}" | sort -u)
+    _deduped=()
+    while IFS= read -r _line; do
+        _deduped+=("$_line")
+    done < <(printf '%s\n' "${GRAPHIFY_TARGETS[@]}" | sort -u)
+    GRAPHIFY_TARGETS=("${_deduped[@]}")
 fi
 
 # GitNexus targets default to Graphify targets unless overridden
