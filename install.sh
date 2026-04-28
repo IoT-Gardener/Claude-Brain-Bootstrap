@@ -569,23 +569,6 @@ if [[ -n "$GITNEXUS_REPOS_EXTRA" ]]; then
     done
 fi
 
-# ── GitNexus: index repos ─────────────────────────────────────────────────────
-if echo "$ENABLE_INTEGRATIONS" | grep -q "gitnexus" && command -v gitnexus &>/dev/null; then
-    if [[ ${#GITNEXUS_TARGETS[@]} -gt 0 ]]; then
-        echo ""
-        head "Indexing repos with GitNexus..."
-        for repo in "${GITNEXUS_TARGETS[@]}"; do
-            if [[ -d "$repo/.git" ]]; then
-                info "Indexing $repo ..."
-                gitnexus analyze "$repo" && ok "Indexed: $(basename "$repo")" \
-                    || warn "GitNexus index failed for $repo — run manually: gitnexus analyze $repo"
-            else
-                warn "Skipping GitNexus index for $repo — not a git repo"
-            fi
-        done
-    fi
-fi
-
 # ── Write .brain-first-run.md ─────────────────────────────────────────────────
 FIRST_RUN_FILE="$TARGET_PATH/.brain-first-run.md"
 FIRST_RUN_TEMPLATE="$BOOTSTRAP_DIR/templates/first-run.md"

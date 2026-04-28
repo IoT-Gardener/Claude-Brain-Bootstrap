@@ -19,7 +19,7 @@ Both modes write the same output format and frontmatter, so the page can be refr
 
 1. **Locate the brain.** Use `$BRAIN_ROOT` if set. Otherwise walk up from cwd looking for `wiki/index.md`. If not found, tell the user and stop.
 
-2. **Determine mode.** Read `$BRAIN_ROOT/.brain.toml`. If `graphify = true`, attempt deep mode: verify Graphify is available by running `graphify --version`. If missing, warn the user to run `pipx install graphifyy && graphify install`, then fall back to shallow. Otherwise use shallow mode.
+2. **Determine mode.** Read `$BRAIN_ROOT/.brain.toml`. If `graphify = true`, attempt deep mode: verify Graphify is available by running `command -v graphify` (PATH check only — do not use `--version`, it is unreliable). If not found, warn the user to run `pipx install graphifyy && graphify install`, then fall back to shallow. Otherwise use shallow mode.
 
 3. **Validate the repo path.** Confirm the path exists and contains a `.git` directory. If not, warn and stop.
 
@@ -29,7 +29,7 @@ Both modes write the same output format and frontmatter, so the page can be refr
    - If it does not exist: proceed.
 
 5. **Gather content.**
-   - **Deep mode**: run `graphify <path-to-repo>` via Bash. Graphify writes a markdown report (`report.md`) and an HTML graph to the current directory. Read `report.md` in full — this is the primary input for the wiki page.
+   - **Deep mode**: run `graphify <path-to-repo>` via Bash. Graphify writes its output to `graphify-out/GRAPH_REPORT.md` and an HTML graph to `graphify-out/GRAPH_REPORT.html` in the current directory. Read `graphify-out/GRAPH_REPORT.md` in full — this is the primary input for the wiki page.
    - **Shallow mode**: read in order, skipping anything that doesn't exist:
      - `README.md` / `README.rst`
      - `CLAUDE.md` / `AGENTS.md` / `.cursorrules`
@@ -77,6 +77,6 @@ Both modes write the same output format and frontmatter, so the page can be refr
    ## [YYYY-MM-DD] ingest | repo: <repo-name> (<deep|shallow>)
    ```
 
-10. **Check GitNexus.** Read `$BRAIN_ROOT/.brain.toml`. If `gitnexus = true`, check whether this repo has been indexed by running `gitnexus index --status <path-to-repo>`. If not indexed, or if the index is older than this run, suggest: "Run `gitnexus index <path-to-repo>` to enable live structural queries alongside this digest."
+10. **Index with GitNexus.** Read `$BRAIN_ROOT/.brain.toml`. If `gitnexus = true` and `gitnexus` is on PATH, run `gitnexus status <path-to-repo>` to check the index. If not indexed or stale (index date older than today), run `gitnexus analyze <path-to-repo>` to update it. Report the result in the summary.
 
 11. **Summarise.** Report: the page written, mode used (deep/shallow), cross-links made, any new entity/concept pages created, and GitNexus index status.

@@ -44,7 +44,7 @@ graphify /path/to/repo
 graphify /path/to/repo --mode deep
 ```
 
-Output is written to the current directory: a markdown report (`report.md`) and an interactive HTML graph (`graph.html`). `/brain-ingest-repo` reads the markdown report and writes the digest to the wiki automatically.
+Output is written to `graphify-out/` in the current directory: a markdown report (`graphify-out/GRAPH_REPORT.md`) and an interactive HTML graph (`graphify-out/GRAPH_REPORT.html`). `/brain-ingest-repo` reads the markdown report and writes the digest to the wiki automatically.
 
 The `/brain-ingest-repo` command runs Graphify automatically when `graphify = true` in `.brain.toml`. You rarely need to call it directly.
 
