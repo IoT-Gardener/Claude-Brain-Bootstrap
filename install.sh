@@ -237,6 +237,12 @@ copy_if_missing "$BOOTSTRAP_DIR/templates/index.md"   "$TARGET_PATH/wiki/index.m
 copy_if_missing "$BOOTSTRAP_DIR/templates/log.md"     "$TARGET_PATH/wiki/log.md"
 copy_if_missing "$BOOTSTRAP_DIR/templates/gitignore"  "$TARGET_PATH/.gitignore"
 
+# Ensure integration-specific ignores are present (idempotent — safe on reinstall)
+GITIGNORE_PATH="$TARGET_PATH/.gitignore"
+for _entry in "graphify-out/" ".gitnexus/" "AGENTS.md" ".claude" "CLAUDE.md"; do
+    grep -qF "$_entry" "$GITIGNORE_PATH" 2>/dev/null || echo "$_entry" >> "$GITIGNORE_PATH"
+done
+
 # Librarian subagent
 copy_if_missing \
     "$BOOTSTRAP_DIR/templates/agents/brain-librarian.md" \
