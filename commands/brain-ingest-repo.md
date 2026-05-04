@@ -77,6 +77,14 @@ Both modes write the same output format and frontmatter, so the page can be refr
    ## [YYYY-MM-DD] ingest | repo: <repo-name> (<deep|shallow>)
    ```
 
-10. **Index with GitNexus.** Read `$BRAIN_ROOT/.brain.toml`. If `gitnexus = true` and `gitnexus` is on PATH, run `gitnexus status <path-to-repo>` to check the index. If not indexed or stale (index date older than today), run `gitnexus analyze <path-to-repo>` to update it. Report the result in the summary.
+10. **Update the repo's `.gitignore`.** Ensure the following tool artifact entries are present in `<path-to-repo>/.gitignore` (create the file if it doesn't exist). Append any that are missing — do not overwrite existing content:
+    ```
+    graphify-out/
+    .gitnexus/
+    AGENTS.md
+    CLAUDE.md
+    ```
 
-11. **Summarise.** Report: the page written, mode used (deep/shallow), cross-links made, any new entity/concept pages created, and GitNexus index status.
+11. **Index with GitNexus.** Read `$BRAIN_ROOT/.brain.toml`. If `gitnexus = true` and `gitnexus` is on PATH, run `gitnexus status <path-to-repo>` to check the index. If not indexed or stale (index date older than today), run `gitnexus analyze <path-to-repo>` to update it. Report the result in the summary.
+
+12. **Summarise.** Report: the page written, mode used (deep/shallow), cross-links made, any new entity/concept pages created, and GitNexus index status.

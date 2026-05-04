@@ -563,6 +563,22 @@ if [[ ${#GRAPHIFY_TARGETS[@]} -gt 0 ]]; then
     GRAPHIFY_TARGETS=("${_deduped[@]}")
 fi
 
+# ── Update gitignore in each discovered repo ──────────────────────────────────
+if [[ ${#GRAPHIFY_TARGETS[@]} -gt 0 ]]; then
+    echo ""
+    head "Updating .gitignore in discovered repos..."
+    _repo_ignores=("graphify-out/" ".gitnexus/" "AGENTS.md" "CLAUDE.md")
+    for repo in "${GRAPHIFY_TARGETS[@]}"; do
+        [[ -d "$repo/.git" ]] || continue
+        _rgi="$repo/.gitignore"
+        _added_repo=0
+        for _entry in "${_repo_ignores[@]}"; do
+            grep -qF "$_entry" "$_rgi" 2>/dev/null || { echo "$_entry" >> "$_rgi"; (( _added_repo++ )) || true; }
+        done
+        [[ $_added_repo -gt 0 ]] && ok "Updated .gitignore: $(basename "$repo") ($_added_repo entries)" || true
+    done
+fi
+
 # GitNexus targets default to Graphify targets unless overridden
 GITNEXUS_TARGETS=()
 [[ ${#GRAPHIFY_TARGETS[@]} -gt 0 ]] && GITNEXUS_TARGETS=("${GRAPHIFY_TARGETS[@]}")
