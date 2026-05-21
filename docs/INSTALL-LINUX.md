@@ -1,6 +1,8 @@
-# Installing Claude Brain on Linux (Pop!_OS / Ubuntu)
+# Installing Claude Brain on Linux
 
-This guide covers manual installation on Debian/Ubuntu-based Linux distributions. The macOS `install.sh` script handles the platform-specific tool installs automatically; on Linux you run the equivalent steps yourself, then call `install.sh` for the brain scaffold and command setup.
+This guide covers manual installation on Linux. The macOS `install.sh` script handles the platform-specific tool installs automatically; on Linux you run the equivalent steps yourself, then call `install.sh` for the brain scaffold and command setup.
+
+Jump to your distro: [Ubuntu/Debian/Pop!_OS](#ubuntudebian) · [Arch Linux](#arch-linux)
 
 ## Prerequisites
 
@@ -9,7 +11,11 @@ This guide covers manual installation on Debian/Ubuntu-based Linux distributions
 - `curl`
 - Claude Code CLI installed and authenticated (`claude --version`)
 - Node.js 18+ (for GitNexus)
-- Python 3.9+ (for Graphify)
+- Python 3.10+ and `pipx` (for Graphify)
+
+---
+
+## Ubuntu/Debian/Pop\!\_OS {#ubuntudebian}
 
 ## Step 1 — Install Obsidian
 
@@ -41,13 +47,14 @@ sudo apt-get install -f  # fix any dependency issues
 ## Step 2 — Install Graphify
 
 ```bash
-pip3 install graphify
+pipx install graphifyy
 ```
 
-If `pip3` is not found:
+If `pipx` is not found:
 ```bash
-sudo apt-get install python3-pip
-pip3 install graphify
+sudo apt-get install pipx
+pipx ensurepath
+pipx install graphifyy
 ```
 
 Verify:
@@ -55,9 +62,9 @@ Verify:
 graphify --version
 ```
 
-If `graphify` is not on PATH after install, add `~/.local/bin` to your PATH:
+If `graphify` is not on PATH after install:
 ```bash
-echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc
+pipx ensurepath
 source ~/.bashrc
 ```
 
@@ -123,3 +130,32 @@ Same as macOS:
 - `raw/` is gitignored by default. Your seed files are copied there but not committed.
 - The brain is initialised as a local git repo. Add a remote whenever you're ready: `git remote add origin <url> && git push -u origin main`.
 - If `claude` is not on PATH, install it per the Claude Code documentation before running `install.sh`.
+
+---
+
+## Arch Linux {#arch-linux}
+
+Replace the apt-based steps above with these equivalents.
+
+**Step 1 — Obsidian:**
+```bash
+# Via AUR (yay or paru)
+yay -S obsidian
+# Or: flatpak install flathub md.obsidian.Obsidian
+```
+
+**Step 2 — Graphify:**
+```bash
+sudo pacman -S python-pipx
+pipx ensurepath
+pipx install graphifyy
+```
+
+**Step 3 — GitNexus:**
+```bash
+sudo pacman -S nodejs npm
+npm install -g gitnexus
+```
+
+**Step 4 — Clone and run:**  
+Same as Ubuntu — Steps 4–7 above apply unchanged.

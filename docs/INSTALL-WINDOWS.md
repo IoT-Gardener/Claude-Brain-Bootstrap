@@ -49,11 +49,9 @@ Open a WSL2 terminal and run:
 
 **Graphify:**
 ```bash
-pip3 install graphify
-# If pip3 not found:
-sudo apt-get install python3-pip && pip3 install graphify
-# Add to PATH if needed:
-echo 'export PATH="$HOME/.local/bin:$PATH"' >> ~/.bashrc && source ~/.bashrc
+pipx install graphifyy
+# If pipx not found:
+sudo apt-get install pipx && pipx ensurepath && pipx install graphifyy
 ```
 
 **GitNexus (optional):**

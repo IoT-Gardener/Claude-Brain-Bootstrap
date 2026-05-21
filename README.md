@@ -129,6 +129,7 @@ Once installed, these commands are available in any Claude Code session:
 | `/brain-ingest <file>` | Ingest a file from `raw/` into the wiki |
 | `/brain-ingest-repo <path>` | Repo digest — deep (Graphify) if enabled, shallow otherwise |
 | `/brain-log-session` | Write an end-of-session summary so the conversation becomes disposable |
+| `/end-session` | Sync non-git `.md` files → `raw/`, ingest any that are new/updated, then log the session |
 | `/brain-librarian` | Full maintenance pass — auto-fixes + judgement-call checklist |
 | `/brain-lint` | Fast diagnostic; `--apply` to auto-fix including stale code re-ingest |
 
@@ -138,7 +139,7 @@ Web Clipper (`/brain-ingest-clipped`), Notion (`/brain-ingest-notion`), and Slac
 
 ## Linux / Windows
 
-- **Linux (Pop!_OS / Ubuntu):** see [`docs/INSTALL-LINUX.md`](docs/INSTALL-LINUX.md) — install tools manually, then run `install.sh` identically.
+- **Linux (Ubuntu/Arch/Pop!_OS):** see [`docs/INSTALL-LINUX.md`](docs/INSTALL-LINUX.md) — install tools manually, then run `install.sh` identically.
 - **Windows:** see [`docs/INSTALL-WINDOWS.md`](docs/INSTALL-WINDOWS.md) — requires WSL2. Obsidian runs natively on Windows and reads the WSL2 brain directory via `\\wsl$`.
 
 ---

@@ -29,7 +29,7 @@ Both modes write the same output format and frontmatter, so the page can be refr
    - If it does not exist: proceed.
 
 5. **Gather content.**
-   - **Deep mode**: run `graphify <path-to-repo>` via Bash. Graphify writes its output to `graphify-out/GRAPH_REPORT.md` and an HTML graph to `graphify-out/GRAPH_REPORT.html` in the current directory. Read `graphify-out/GRAPH_REPORT.md` in full — this is the primary input for the wiki page.
+   - **Deep mode**: run `graphify <path-to-repo>` via Bash. Graphify writes `graphify-out/graph.json` (structured node/edge graph) and `graphify-out/GRAPH_TREE.html` (interactive visualisation) in the current directory. Read `graphify-out/graph.json` — extract nodes (functions, files, classes) and edges (call/import relationships) to build the wiki page. Also check `graphify-out/manifest.json` for repo metadata.
    - **Shallow mode**: read in order, skipping anything that doesn't exist:
      - `README.md` / `README.rst`
      - `CLAUDE.md` / `AGENTS.md` / `.cursorrules`
